@@ -50,8 +50,19 @@ class AnnotationSchema:
         'maxItems': 3,
         'name': 'Coordinate',
         # TODO: define origin for 3D images
-        'description': 'An X, Y, Z coordinate tuple, in base layer pixel'
-                       ' coordinates, where the origin is the upper-left.'
+        'description': 'An X, Y, Z coordinate tuple, in base layer pixel '
+                       'coordinates, where the origin is the upper-left.'
+    }
+    coordValueSchema = {
+        'type': 'array',
+        'items': {
+            'type': 'number'
+        },
+        'minItems': 4,
+        'maxItems': 4,
+        'name': 'CoordinateWithValue',
+        'description': 'An X, Y, Z, value coordinate tuple, in base layer '
+                       'pixel coordinates, where the origin is the upper-left.'
     }
 
     colorSchema = {
@@ -309,9 +320,92 @@ class AnnotationSchema:
         ]
     }
 
+    heatmapSchema = {
+        'allOf': [
+            baseShapeSchema,
+            {
+                'type': 'object',
+                'properties': {
+                    'type': {
+                        'type': 'string',
+                        'enum': ['heatmap']
+                    },
+                    'points': {
+                        'type': 'array',
+                        'items': coordValueSchema,
+                        'minItems': 1,
+                    },
+                    'radius': {
+                        'type': 'number',
+                        'minimum': 0,
+                        'exclusiveMinimum': True,
+                    },
+                    'zeroColor': colorSchema,
+                    'maxColor': colorSchema,
+                },
+                'required': ['type', 'points'],
+                'patternProperties': baseShapePatternProperties,
+                'additionalProperties': False,
+            }
+        ]
+    }
+
+    griddataSchema = {
+        'allOf': [
+            baseShapeSchema,
+            {
+                'type': 'object',
+                'properties': {
+                    'type': {
+                        'type': 'string',
+                        'enum': ['griddata']
+                    },
+                    'origin': coordSchema,
+                    'dx': {
+                        'type': 'number',
+                        'description': 'grid spacing in the x direction',
+                    },
+                    'dy': {
+                        'type': 'number',
+                        'description': 'grid spacing in the y direction',
+                    },
+                    'gridWidth': {
+                        'type': 'integer',
+                        'minimum': 1,
+                        'description': 'The number of values across the width of the grid',
+                    },
+                    'values': {
+                        'type': 'array',
+                        'items': {'type': 'number'},
+                        'minItems': 1,
+                        'description':
+                            'The values of the grid.  This must have a '
+                            'multiple of gridWidth entries',
+                    },
+                    'interpretation': {
+                        'type': 'string',
+                        'enum': ['heatmap', 'contour', 'choropleth']
+                    },
+                    'radius': {
+                        'type': 'number',
+                        'minimum': 0,
+                        'exclusiveMinimum': True,
+                        'description': 'radius used for heatmap interpretation',
+                    },
+                    'minColor': colorSchema,
+                    'zeroColor': colorSchema,
+                    'maxColor': colorSchema,
+                },
+                'required': ['type', 'values', 'gridWidth'],
+                'patternProperties': baseShapePatternProperties,
+                'additionalProperties': False
+            }
+        ]
+    }
+
     annotationElementSchema = {
         '$schema': 'http://json-schema.org/schema#',
-        # Shape subtypes are mutually exclusive, so for  efficiency, don't use
+        # Shape subtypes are mutually exclusive, so for efficiency, don't use
         # 'oneOf'
         'anyOf': [
             # If we include the baseShapeSchema, then shapes that are as-yet
@@ -320,6 +414,8 @@ class AnnotationSchema:
             arrowShapeSchema,
             circleShapeSchema,
             ellipseShapeSchema,
+            griddataSchema,
+            heatmapSchema,
             pointShapeSchema,
             polylineShapeSchema,
             rectangleShapeSchema,

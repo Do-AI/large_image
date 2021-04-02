@@ -319,13 +319,26 @@ class Annotationelement(Model):
         """
         bbox = {}
         if 'points' in element:
-            bbox['lowx'] = min([p[0] for p in element['points']])
-            bbox['lowy'] = min([p[1] for p in element['points']])
-            bbox['lowz'] = min([p[2] for p in element['points']])
-            bbox['highx'] = max([p[0] for p in element['points']])
-            bbox['highy'] = max([p[1] for p in element['points']])
-            bbox['highz'] = max([p[2] for p in element['points']])
-            bbox['details'] = len(element['points'])
+            key = 'points'
+            bbox['lowx'] = min([p[0] for p in element[key]])
+            bbox['lowy'] = min([p[1] for p in element[key]])
+            bbox['lowz'] = min([p[2] for p in element[key]])
+            bbox['highx'] = max([p[0] for p in element[key]])
+            bbox['highy'] = max([p[1] for p in element[key]])
+            bbox['highz'] = max([p[2] for p in element[key]])
+            bbox['details'] = len(element[key])
+        elif element.get('type') == 'griddata':
+            x0, y0, z = element['origin']
+            isElements = element.get('interpretation') == 'choropleth'
+            x1 = x0 + element['dx'] * (element['gridWidth'] - (1 if not isElements else 0))
+            y1 = y0 + element['dy'] * (math.ceil(len(element['values']) / element['gridWidth']) -
+                                       (1 if not isElements else 0))
+            bbox['lowx'] = min(x0, x1)
+            bbox['lowy'] = min(y0, y1)
+            bbox['lowz'] = bbox['highz'] = z
+            bbox['highx'] = max(x0, x1)
+            bbox['highy'] = max(y0, y1)
+            bbox['details'] = len(element['values'])
         else:
             center = element['center']
             bbox['lowz'] = bbox['highz'] = center[2]

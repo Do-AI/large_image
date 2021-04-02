@@ -146,11 +146,78 @@ A Rectangle Grid is a rectangle which contains regular subdivisions, such as tha
 }
 ```
 
+### Heatmap
+
+A list of points with values that is interpreted as a heatmap so that near by values aggregate together when viewed.
+
+```
+{
+    "type": "heatmap",                 # Exact string.  Required
+    <id, label>                        # Optional general shape properties
+    "points": [                        # A list of coordinate-value entries.  Each is x, y, z, value.
+        [32320, 48416, 0, 0.192],
+        [40864, 109568, 0, 0.87],
+        [53472, 63392, 0, 0.262],
+        [23232, 96096, 0, 0.364],
+        [10976, 93376, 0, 0.2],
+        [42368, 65248, 0, 0.054]
+    ],
+    "radius": 25,                      # Positive number.  Optional.  The size of the gaussian plot spread,
+    "zeroColor": "rgba(0, 0, 0, 0)"    # String.  See note about colors.  Optional.  The 0 value color.
+    "maxColor": "rgba(255, 255, 0, 1)" # String.  See note about colors.  Optional.  The peak color for the gaussian plot
+}
+```
+
+### Grid Data
+
+For evenly spaced data that is interpreted as a heatmap, contour, or choropleth, a grid with a list of values can be specified.
+
+```
+{
+    "type": "griddata",                # Exact string.  Required
+    <id, label>                        # Optional general shape properties
+    "interpretation": "contour",       # One of heat
+    "gridWidth": 6,                    # Number of values across the grid
+    "origin": [0, 0, 0],               # Origin including fized x value
+    "dx": 32,                          # Grid spacing in x
+    "dy": 32,                          # Grid spacing in y
+    "minColor": "rgba(0, 0, 255, 1)",  # The color of negative data
+    "zeroColor": "rgba(0, 0, 0, 0)",   # The color of 0-values data
+    "maxColor": "rgba(255, 255, 0, 1)", # The color of positive data
+    "values": [
+        0.508,
+        0.806,
+        0.311,
+        0.402,
+        0.535,
+        0.661,
+        0.866,
+        0.31,
+        0.241,
+        0.63,
+        0.555,
+        0.067,
+        0.668,
+        0.164,
+        0.512,
+        0.647,
+        0.501,
+        0.637,
+        0.498,
+        0.658,
+        0.332,
+        0.431,
+        0.053,
+        0.531
+    ]
+}
+```
+
 ## Component Values
 
 ### Colors
 
-Colors are specified using a css-like string.  Specifically, values of the form `#RRGGBB` and `#RGB` are allowed where `R`, `G`, and `B` are case-insensitive hexadecimal digits.  Additonally, values of the form `rgb(123, 123, 123)` and `rgba(123, 123, 123, 0.123)` are allowed, where the colors are specified on a [0-255]  integer scale, and the opacity is specified as a [0-1] floating-point number.
+Colors are specified using a css-like string.  Specifically, values of the form `#RRGGBB` and `#RGB` are allowed where `R`, `G`, and `B` are case-insensitive hexadecimal digits.  Additionally, values of the form `rgb(123, 123, 123)` and `rgba(123, 123, 123, 0.123)` are allowed, where the colors are specified on a [0-255]  integer scale, and the opacity is specified as a [0-1] floating-point number.
 
 ### Coordinates
 
