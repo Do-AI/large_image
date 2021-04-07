@@ -176,14 +176,14 @@ For evenly spaced data that is interpreted as a heatmap, contour, or choropleth,
 {
     "type": "griddata",                # Exact string.  Required
     <id, label>                        # Optional general shape properties
-    "interpretation": "contour",       # One of heat
-    "gridWidth": 6,                    # Number of values across the grid
-    "origin": [0, 0, 0],               # Origin including fized x value
-    "dx": 32,                          # Grid spacing in x
-    "dy": 32,                          # Grid spacing in y
-    "minColor": "rgba(0, 0, 255, 1)",  # The color of negative data
-    "zeroColor": "rgba(0, 0, 0, 0)",   # The color of 0-values data
-    "maxColor": "rgba(255, 255, 0, 1)", # The color of positive data
+    "interpretation": "contour",       # One of heatmap, contour, or choropleth
+    "gridWidth": 6,                    # Number of values across the grid.  Required
+    "origin": [0, 0, 0],               # Origin including fized x value.  Optional
+    "dx": 32,                          # Grid spacing in x.  Optional
+    "dy": 32,                          # Grid spacing in y.  Optional
+    "minColor": "rgba(0, 0, 255, 1)",  # The color of negative data.  Optional.  Ignored for heatmap interpretations.
+    "zeroColor": "rgba(0, 0, 0, 0)",   # The color of 0-values data.  Optional
+    "maxColor": "rgba(255, 255, 0, 1)", # The color of positive data.  Optional
     "values": [
         0.508,
         0.806,

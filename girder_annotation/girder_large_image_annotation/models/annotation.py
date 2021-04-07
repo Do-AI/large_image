@@ -19,6 +19,7 @@ import cherrypy
 import datetime
 import enum
 import jsonschema
+import numpy
 import re
 import threading
 import time
@@ -37,6 +38,9 @@ from girder_large_image import constants
 from girder_large_image.models.image_item import ImageItem
 
 from .annotationelement import Annotationelement
+
+# Some arrays longer than this are validated using numpy rather than jsonschema
+VALIDATE_ARRAY_LENGTH = 1000
 
 
 class AnnotationSchema:
@@ -333,7 +337,6 @@ class AnnotationSchema:
                     'points': {
                         'type': 'array',
                         'items': coordValueSchema,
-                        'minItems': 1,
                     },
                     'radius': {
                         'type': 'number',
@@ -377,7 +380,6 @@ class AnnotationSchema:
                     'values': {
                         'type': 'array',
                         'items': {'type': 'number'},
-                        'minItems': 1,
                         'description':
                             'The values of the grid.  This must have a '
                             'multiple of gridWidth entries',
@@ -872,7 +874,7 @@ class Annotation(AccessControlledModel):
                         return False
         elif isinstance(a, list):
             if len(a) != len(b):
-                if parentKey != 'points' or len(a) < 3 or len(b) < 3:
+                if parentKey not in {'points', 'values'} or len(a) < 3 or len(b) < 3:
                     return False
                 # If this is an array of points, let it pass
                 for idx in range(len(b)):
@@ -907,9 +909,24 @@ class Annotation(AccessControlledModel):
             for element in elements:
                 if isinstance(element.get('id'), ObjectId):
                     element['id'] = str(element['id'])
+                # Handle elements with large arrays by checking that a
+                # conversion to a numpy array works
+                key = None
+                if len(element.get('points', element.get('values', []))) > VALIDATE_ARRAY_LENGTH:
+                    key = 'points' if 'points' in element else 'values'
+                    try:
+                        # Check if the entire array converts in an obvious
+                        # manner
+                        numpy.array(element[key], dtype=float)
+                        keydata = element[key]
+                        element[key] = element[key][:VALIDATE_ARRAY_LENGTH]
+                    except Exception:
+                        key = None
                 if not self._similarElementStructure(element, lastValidatedElement):
                     self.validatorAnnotationElement.validate(element)
                     lastValidatedElement = element
+                if key:
+                    element[key] = keydata
             annot['elements'] = elements
         except jsonschema.ValidationError as exp:
             raise ValidationException(exp)
