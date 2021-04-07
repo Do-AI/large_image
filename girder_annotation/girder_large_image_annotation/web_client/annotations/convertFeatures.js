@@ -10,20 +10,26 @@ function convertHeatmap(record, properties, layer) {
     /* Heatmaps need to be in their own layer */
     const map = layer.map();
     const heatmapLayer = map.createLayer('feature', {features: ['heatmap']});
+    let color = {
+        0: record.zeroColor || {r: 0, g: 0, b: 0, a: 0},
+        1: record.maxColor || {r: 1, g: 1, b: 0, a: 1}
+    };
+    if (record.colorRange && record.rangeValues) {
+        for (let i = 0; i < record.colorRange.length && i < record.rangeValues.length; i += 1) {
+            color[record.rangeValues[i]] = record.colorRange[i];
+        }
+    }
     const heatmap = heatmapLayer.createFeature('heatmap', {
         style: {
             radius: record.radius || 25,
             blurRadius: 0,
             gaussian: true,
-            color: {
-                0: record.zeroColor || {r: 0, g: 0, b: 0, a: 0},
-                1: record.maxColor || {r: 1, g: 1, b: 0, a: 1}
-            }
+            color: color
         },
         position: (d) => ({x: d[0], y: d[1], z: d[2]}),
         intensity: (d) => d[3] || 0,
-        maxIntensity: null,
-        minIntensity: 0,
+        minIntensity: record.minIntensity !== undefined ? record.minIntensity : 0,
+        maxIntensity: record.maxIntensity !== undefined ? record.maxIntensity : null,
         updateDelay: 100
     }).data(record.points);
     heatmap._ownLayer = true;
@@ -47,23 +53,29 @@ function convertGridToHeatmap(record, properties, layer) {
     const z = (record.origin || [0, 0, 0])[2] || 0;
     const dx = (record.dx || 1);
     const dy = (record.dy || 1);
+    let color = {
+        0: record.zeroColor || {r: 0, g: 0, b: 0, a: 0},
+        1: record.maxColor || {r: 1, g: 1, b: 0, a: 1}
+    };
+    if (record.colorRange && record.rangeValues) {
+        for (let i = 0; i < record.colorRange.length && i < record.rangeValues.length; i += 1) {
+            color[record.rangeValues[i]] = record.colorRange[i];
+        }
+    }
     const heatmap = heatmapLayer.createFeature('heatmap', {
         style: {
             radius: record.radius || 25,
             blurRadius: 0,
             gaussian: true,
-            color: {
-                0: record.zeroColor || {r: 0, g: 0, b: 0, a: 0},
-                1: record.maxColor || {r: 1, g: 1, b: 0, a: 1}
-            }
+            color: color
         },
         position: (d, i) => ({
             x: x0 + dx * (i % record.gridWidth),
             y: y0 + dy * Math.floor(i / record.gridWidth),
             z: z}),
         intensity: (d) => d || 0,
-        maxIntensity: null,
-        minIntensity: 0,
+        minIntensity: record.minIntensity !== undefined ? record.minIntensity : 0,
+        maxIntensity: record.maxIntensity !== undefined ? record.maxIntensity : null,
         updateDelay: 100
     }).data(record.values);
     heatmap._ownLayer = true;

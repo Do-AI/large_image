@@ -80,7 +80,19 @@ class AnnotationSchema:
         # TODO: make rgb and rgba spec validate that rgb is [0-255] and a is
         # [0-1], rather than just checking if they are digits and such.
         'pattern': r'^(#[0-9a-fA-F]{3,6}|rgb\(\d+,\s*\d+,\s*\d+\)|'
-                   r'rgba\(\d+,\s*\d+,\s*\d+,\s*(\d?\.|)\d+\))$'
+                   r'rgba\(\d+,\s*\d+,\s*\d+,\s*(\d?\.|)\d+\))$',
+    }
+
+    colorRangeSchema = {
+        'type': 'array',
+        'items': colorSchema,
+        'description': 'A list of colors',
+    }
+
+    rangeValueSchema = {
+        'type': 'array',
+        'items': {'type': 'number'},
+        'description': 'A weakly monotonic list of range values',
     }
 
     baseShapeSchema = {
@@ -345,10 +357,20 @@ class AnnotationSchema:
                     },
                     'zeroColor': colorSchema,
                     'maxColor': colorSchema,
+                    'colorRange': colorRangeSchema,
+                    'rangeValues': rangeValueSchema,
+                    'minIntensity': {'type': 'number'},
+                    'maxIntensity': {'type': 'number'},
                 },
                 'required': ['type', 'points'],
                 'patternProperties': baseShapePatternProperties,
                 'additionalProperties': False,
+                'description':
+                    'If a colorRange and rangeValues are specified, they '
+                    'should have a one-to-one correspondence.  The values in '
+                    'rangeValues are normalized on a scale of 0 to 1.  If 0 '
+                    'or 1 is specified, the zeroColor and maxColor are '
+                    'ignored respectively.',
             }
         ]
     }
@@ -397,10 +419,19 @@ class AnnotationSchema:
                     'minColor': colorSchema,
                     'zeroColor': colorSchema,
                     'maxColor': colorSchema,
+                    'colorRange': colorRangeSchema,
+                    'rangeValues': rangeValueSchema,
+                    'stepped': {'type': 'boolean'},
                 },
                 'required': ['type', 'values', 'gridWidth'],
                 'patternProperties': baseShapePatternProperties,
-                'additionalProperties': False
+                'additionalProperties': False,
+                'description':
+                    'If a colorRange and rangeValues are specified, the '
+                    'minColor, zeroColor, and maxColor are ignored.  If '
+                    'stepped is true, the rangeValues need to have one more '
+                    'value than the colorRange.  If false, rangeValue and '
+                    'colorRange have the same number of vavlues',
             }
         ]
     }

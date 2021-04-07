@@ -163,8 +163,19 @@ A list of points with values that is interpreted as a heatmap so that near by va
         [42368, 65248, 0, 0.054]
     ],
     "radius": 25,                      # Positive number.  Optional.  The size of the gaussian plot spread,
-    "zeroColor": "rgba(0, 0, 0, 0)"    # String.  See note about colors.  Optional.  The 0 value color.
-    "maxColor": "rgba(255, 255, 0, 1)" # String.  See note about colors.  Optional.  The peak color for the gaussian plot
+    "zeroColor": "rgba(0, 0, 0, 0)",   # String.  See note about colors.  Optional.  The 0 value color. 
+                                       # Ignored if colorRange and rangeValues specify a color for a range 
+                                       # value of 0.
+    "maxColor": "rgba(255, 255, 0, 1)", # String.  See note about colors.  Optional.  The peak color for the 
+                                       # gaussian plot.  Ignored if colorRange and rangeValues specify a
+                                       # color for a range value of 1.
+    "minIntensity": 0,                 # The value that maps to the zeroColor.  Defaults to zero.  Optional
+    "maxIntensity": 0.9,               # The value that maps to the maxColor.  Defaults to the maximum value
+                                       # in the data.  Optionala
+    "colorRange": ["rgba(0, 0, 0, 0)", "rgba(255, 255, 0, 1)"]  # A list of colors corresponding to the
+                                       # rangeValues.  Optional
+    "rangeValues: [0, 1]               # A list of range values corresponding to the colorRange list
+                                       # normalized to a scale of [0, 1].  Optional
 }
 ```
 
@@ -181,9 +192,22 @@ For evenly spaced data that is interpreted as a heatmap, contour, or choropleth,
     "origin": [0, 0, 0],               # Origin including fized x value.  Optional
     "dx": 32,                          # Grid spacing in x.  Optional
     "dy": 32,                          # Grid spacing in y.  Optional
-    "minColor": "rgba(0, 0, 255, 1)",  # The color of negative data.  Optional.  Ignored for heatmap interpretations.
-    "zeroColor": "rgba(0, 0, 0, 0)",   # The color of 0-values data.  Optional
-    "maxColor": "rgba(255, 255, 0, 1)", # The color of positive data.  Optional
+    "minColor": "rgba(0, 0, 255, 1)",  # The color of negative data.  Optional.  Ignored for heatmap
+                                       # interpretations.
+    "zeroColor": "rgba(0, 0, 0, 0)",   # The color of 0-values data.  Optional.  Ignored if colorRange and
+                                       # rangeValues are specified for contours or choropleths or for
+                                       # heatmaps if a color is specified for a range value of 0.
+    "maxColor": "rgba(255, 255, 0, 1)", # The color of positive data.  Optional.  Ignored if colorRange and
+                                       # rangeValues are specified for contours or choropleths or for
+                                       # heatmaps if a color is specified for a range value of 1.
+    "minIntensity": 0,                 # On heatmaps, the value that maps to the zeroColor.  Defaults to
+                                       # zero.  Optional
+    "maxIntensity": 0.9,               # On heatmaps, the value that maps to the maxColor.  Defaults to the
+                                       # maximum value in the data.  Optional
+    "colorRange": ["rgba(0, 0, 0, 0)", "rgba(255, 255, 0, 1)"]  # A list of colors corresponding to the
+                                       # rangeValues.  Optional
+    "rangeValues: [0, 1],              # A list of range values corresponding to the colorRange list.  This should have the same number of entries as colorRange unless a contour where stepped is true.  Optional
+    "stepped": true,                   # For contours, whether discrete colors or continuous colors should be used.  Default false.  Optional
     "values": [
         0.508,
         0.806,

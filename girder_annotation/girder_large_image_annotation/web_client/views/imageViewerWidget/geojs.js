@@ -195,6 +195,9 @@ var GeojsImageViewerWidgetExtension = function (viewer) {
                 .read(geojson, (features) => {
                     if (features.length === 0) {
                         features = annotation.non_geojson(this.featureLayer);
+                        if (features.length) {
+                            this.featureLayer.map().draw();
+                        }
                     }
                     _.each(features || [], (feature) => {
                         var events = geo.event.feature;
