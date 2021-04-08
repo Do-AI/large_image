@@ -355,22 +355,23 @@ class AnnotationSchema:
                         'minimum': 0,
                         'exclusiveMinimum': True,
                     },
-                    'zeroColor': colorSchema,
-                    'maxColor': colorSchema,
                     'colorRange': colorRangeSchema,
                     'rangeValues': rangeValueSchema,
-                    'minIntensity': {'type': 'number'},
-                    'maxIntensity': {'type': 'number'},
+                    'normalizeRange': {
+                        'type': 'boolean',
+                        'description':
+                            'If true, rangeValues are on a scale of 0 to 1 '
+                            'and map to the minimum and maximum values on the '
+                            'data.  If false (the default), the rangeValues '
+                            'are the actual data values.',
+                    },
                 },
                 'required': ['type', 'points'],
                 'patternProperties': baseShapePatternProperties,
                 'additionalProperties': False,
                 'description':
-                    'If a colorRange and rangeValues are specified, they '
-                    'should have a one-to-one correspondence.  The values in '
-                    'rangeValues are normalized on a scale of 0 to 1.  If 0 '
-                    'or 1 is specified, the zeroColor and maxColor are '
-                    'ignored respectively.',
+                    'ColorRange and rangeValues should have a one-to-one '
+                    'correspondence.',
             }
         ]
     }
@@ -416,22 +417,29 @@ class AnnotationSchema:
                         'exclusiveMinimum': True,
                         'description': 'radius used for heatmap interpretation',
                     },
-                    'minColor': colorSchema,
-                    'zeroColor': colorSchema,
-                    'maxColor': colorSchema,
                     'colorRange': colorRangeSchema,
                     'rangeValues': rangeValueSchema,
+                    'normalizeRange': {
+                        'type': 'boolean',
+                        'description':
+                            'If true, rangeValues are on a scale of 0 to 1 '
+                            'and map to the minimum and maximum values on the '
+                            'data.  If false (the default), the rangeValues '
+                            'are the actual data values.',
+                    },
                     'stepped': {'type': 'boolean'},
+                    'minColor': colorSchema,
+                    'maxColor': colorSchema,
                 },
                 'required': ['type', 'values', 'gridWidth'],
                 'patternProperties': baseShapePatternProperties,
                 'additionalProperties': False,
                 'description':
-                    'If a colorRange and rangeValues are specified, the '
-                    'minColor, zeroColor, and maxColor are ignored.  If '
-                    'stepped is true, the rangeValues need to have one more '
-                    'value than the colorRange.  If false, rangeValue and '
-                    'colorRange have the same number of vavlues',
+                    'ColorRange and rangeValues should have a one-to-one '
+                    'correspondence except for stepped contours where '
+                    'rangeValues needs one more entry than colorRange.  '
+                    'minColor and maxColor are the colors applies to values '
+                    'beyond the ranges in rangeValues.',
             }
         ]
     }
