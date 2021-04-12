@@ -1,5 +1,5 @@
 import convert from './convert';
-import convertFeatures from './convertFeatures';
+import * as convertFeatures from './convertFeatures';
 import rotate from './rotate';
 import style from './style';
 import * as geometry from './geometry';

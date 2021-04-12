@@ -4,7 +4,7 @@ import { restRequest } from '@girder/core/rest';
 
 import ElementCollection from '../collections/ElementCollection';
 import convert from '../annotations/convert';
-import convertFeatures from '../annotations/convertFeatures';
+import { convertFeatures } from '../annotations/convertFeatures';
 
 import style from '../annotations/style.js';
 

@@ -11,39 +11,54 @@
 function heatmapColorTable(record, values) {
     let range0 = 0;
     let range1 = 1;
-    if (record.normalizeRange !== true) {
-        range0 = range1 = values[0] || 0;
-        for (let i = 1; i < values.length; i += 1) {
-            let val = values[i] || 0;
-            if (val < range0) {
-                range0 = val;
-            }
-            if (val > range1) {
-                range1 = val;
-            }
-        }
-    }
+    let min = 0;
+    let max = null;
     let color = {
         0: {r: 0, g: 0, b: 0, a: 0},
         1: {r: 1, g: 1, b: 0, a: 1}
     };
-    let rangeMin, rangeMax;
     if (record.colorRange && record.rangeValues) {
-        for (let i = 0; i < record.colorRange.length && i < record.rangeValues.length; i += 1) {
-            let val = (record.rangeValues[i] - range0) / ((range1 - range0) || 1);
-            if (rangeMin === undefined || val < rangeMin) {
-                rangeMin = val;
+        if (record.normalizeRange || !values.length) {
+            for (let i = 0; i < record.colorRange.length && i < record.rangeValues.length; i += 1) {
+                let val = Math.max(0, Math.min(1, record.rangeValues[i]));
+                color[val] = record.colorRange[i];
+                if (val >= 1) {
+                    break;
+                }
             }
-            if (rangeMax === undefined || val < rangeMax) {
-                rangeMax = val;
+        } else if (record.colorRange.length >= 2 && record.rangeValues.length >= 2) {
+            range0 = range1 = record.rangeValues[0] || 0;
+            for (let i = 1; i < record.rangeValues.length; i += 1) {
+                let val = record.rangeValues[i] || 0;
+                if (val < range0) {
+                    range0 = val;
+                }
+                if (val > range1) {
+                    range1 = val;
+                }
             }
-            color[val] = record.colorRange[i];
+            if (range0 === range1) {
+                range0 -= 1;
+            }
+            min = undefined;
+            for (let i = 0; i < record.colorRange.length && i < record.rangeValues.length; i += 1) {
+                let val = (record.rangeValues[i] - range0) / ((range1 - range0) || 1);
+                if (val <= 0 || min === undefined) {
+                    min = record.rangeValues[i];
+                }
+                max = record.rangeValues[i];
+                val = Math.max(0, Math.min(1, val));
+                color[val] = record.colorRange[i];
+                if (val >= 1) {
+                    break;
+                }
+            }
         }
     }
     return {
         color: color,
-        min: record.normalizeRange === true || rangeMin === undefined ? 0 : rangeMin,
-        max: record.normalizeRange === true || rangeMax === undefined ? range1 : rangeMax
+        min: min,
+        max: max
     };
 }
 
@@ -120,7 +135,7 @@ const converters = {
     heatmap: convertHeatmap
 };
 
-export default function convertFeatures(json, properties = {}, layer) {
+function convertFeatures(json, properties = {}, layer) {
     try {
         var features = [];
         json.forEach((element) => {
@@ -134,3 +149,8 @@ export default function convertFeatures(json, properties = {}, layer) {
         console.error(err);
     }
 }
+
+export {
+    convertFeatures,
+    heatmapColorTable
+};
